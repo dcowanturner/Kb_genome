@@ -1,0 +1,13 @@
+#!/bin/bash
+#SBATCH -A mkmesmc
+#SBATCH --job-name=repeatmodeler_makeDB
+#SBATCH -p bigmem
+#SBATCH --ntasks=8
+#SBATCH --mail-user=d.cowan-turner@newcastle.ac.uk
+#SBATCH --mail-type=ALL
+#SBATCH --error=/nobackup/b3064455/job_output/repeatmodeler_makeDB.err
+#SBATCH --output=/nobackup/b3064455/job_output/repeatmodeler_makeDB.out
+
+source activate repeatmodeler
+cd /nobackup/proj/mkmesmc/Kbloss/repeatmodeler
+BuildDatabase -name Kbloss /nobackup/proj/mkmesmc/Kbloss/PurgeDups/purged.fa
