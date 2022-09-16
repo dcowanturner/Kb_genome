@@ -1,0 +1,18 @@
+#!/bin/bash
+#SBATCH -A mkmesmc
+#SBATCH --job-name=RepeatModeler
+#SBATCH -p bigmem
+#SBATCH --exclude=mb[01-02],mn[01-04]
+#SBATCH --ntasks=44
+#SBATCH --exclusive
+#SBATCH --mail-user=d.cowan-turner@newcastle.ac.uk
+#SBATCH --mail-type=ALL
+#SBATCH --error=/nobackup/b3064455/job_output/RepeatModeler.err
+#SBATCH --output=/nobackup/b3064455/job_output/RepeatModeler.out
+
+
+#repeatmodeler
+module purge
+
+cd /mnt/storage/nobackup/proj/mkmesmc/Kbloss/repeatmodeler
+./dfam-tetools.sh -- /opt/RepeatModeler/RepeatModeler -database Kbloss -pa 44 -LTRStruct
