@@ -1,0 +1,24 @@
+#!/bin/bash
+#SBATCH -A mkmesmc
+#SBATCH --job-name=RepeatMaskerV4
+#SBATCH --exclude=mb[01-02]
+#SBATCH -p bigmem
+#SBATCH --ntasks=44
+#SBATCH --exclusive
+#SBATCH --mail-user=d.cowan-turner@newcastle.ac.uk
+#SBATCH --mail-type=ALL
+#SBATCH --error=/nobackup/b3064455/job_output/RepeatMasker.err
+#SBATCH --output=/nobackup/b3064455/job_output/RepeatMasker.out
+
+
+#Ran to get repeat stats on V4 assembly-  should match up with others.  Will add to list of things to change for V5.
+
+#repeatmodeler
+module purge
+
+#Fix for singularity
+PATH=/usr/bin/
+
+cd /mnt/storage/nobackup/proj/mkmesmc/Kbloss/repeatmodeler/repeatmasker
+#cp /nobackup/proj/mkmesmc/Kbloss/PurgeDups/purged.fa ./kb.fa
+./dfam-tetools.sh -- /opt/RepeatMasker/RepeatMasker -pa 44 -gff -lib consensi.fa.classified kbloss_v4.new.fasta -small -nolow
