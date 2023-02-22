@@ -1,0 +1,64 @@
+#!/bin/bash
+#SBATCH -A mkmesmc
+#SBATCH --job-name=S4_purge_dups
+#SBATCH -p bigmem
+#SBATCH --ntasks=44
+#SBATCH --mail-user=d.cowan-turner@newcastle.ac.uk
+#SBATCH --mail-type=ALL
+#SBATCH --error=/nobackup/b3064455/job_output/S4_purge_dups.err
+#SBATCH --output=/nobackup/b3064455/job_output/S4_purge_dups.out
+
+#CoreSettings
+CoreDir="/nobackup/proj/mkmesmc/KblossV5"
+GenomeName="KblossV5"
+DNAShortReads_1="/nobackup/proj/mkmesmc/Kbloss/ShortReads/AllReads/raw_short_merged_1.fq"
+DNAShortReads_2="/nobackup/proj/mkmesmc/Kbloss/ShortReads/AllReads/raw_short_merged_2.fq"
+LongReads="/nobackup/proj/mkmesmc/Kbloss2022/Reads/Nanopore/MergedLongReads.fq"
+mascuradir=$CoreDir/S1_mascura
+ragtag_dir=$CoreDir/S2_ragtag
+purge_haplotigs_dir=$CoreDir/S3_purge_haplotigs
+purge_dups_dir=$CoreDir/S4_purge_dups
+Genome_S2=$ragtag_dir/klax_cor_scaf/Kb.s2.fa
+Genome_S3=$purge_haplotigs_dir/curated.fasta
+
+#File Prep
+cd $CoreDir;mkdir $purge_dups_dir;cd $purge_dups_dir
+
+#Purge_DupsPrep
+REF=$Genome_S3
+ref=curated
+#ref=`echo $ref | sed 's/.fasta$//g' | sed 's/.fa$//g'`
+cpus=$SLURM_CPUS_PER_TASK
+source activate Purge_Dups
+
+#Index Ref
+echo "Start indexing $ref"
+minimap2 -t $cpus -xmap-ont -d $ref.idx $REF
+echo "Done indexing $ref"
+
+split_fa $REF > $ref.split.fa
+cp $ref.split.fa $ref.split2.fa
+minimap2 -t $cpus -xasm5 -DP $ref.split.fa $ref.split2.fa | gzip -c - > $ref.split.self.paf.gz
+
+module purge
+conda deactivate
+
+#short reads
+source activate bwa
+bwa index curated.fasta
+bwa mem -t 44 "$Genome_S3" "$DNAShortReads_1" "$DNAShortReads_2" | samtools view -b -o - > shortreads.bam
+conda deactivate
+
+source activate Purge_Dups
+# The program will generate two/three outputs, TX.stat and TX.base.cov which functions the same way as PB.stat and PB.base.cov respectively.
+ngscstat shortreads.bam
+
+calcuts TX.stat > cutoffs 2>calcults.log
+purge_dups -2 -T cutoffs -c TX.base.cov $ref.split.self.paf.gz > dups.bed 2> purge_dups.log
+get_seqs dups.bed $REF> purged.fa 2> hap.fa
+
+Genome_S4=$purge_dups_dir/hap.fa
+
+#TheJollyLog
+echo "S4_purge_haplotigs done"
+echo "S4_purge_haplotigs done" >> $CoreDir/TheJolly.Log
