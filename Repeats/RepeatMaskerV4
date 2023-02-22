@@ -11,8 +11,6 @@
 #SBATCH --output=/nobackup/b3064455/job_output/RepeatMasker.out
 
 
-#Ran to get repeat stats on V4 assembly-  should match up with others.  Will add to list of things to change for V5.
-
 #repeatmodeler
 module purge
 
@@ -20,5 +18,5 @@ module purge
 PATH=/usr/bin/
 
 cd /mnt/storage/nobackup/proj/mkmesmc/Kbloss/repeatmodeler/repeatmasker
-#cp /nobackup/proj/mkmesmc/Kbloss/PurgeDups/purged.fa ./kb.fa
+
 ./dfam-tetools.sh -- /opt/RepeatMasker/RepeatMasker -pa 44 -gff -lib consensi.fa.classified kbloss_v4.new.fasta -small -nolow
