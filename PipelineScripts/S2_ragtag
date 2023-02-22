@@ -1,0 +1,43 @@
+#!/bin/bash
+#SBATCH -A mkmesmc
+#SBATCH --job-name=S2_ragtag
+#SBATCH -p bigmem
+#SBATCH --ntasks=8
+#SBATCH --mail-user=d.cowan-turner@newcastle.ac.uk
+#SBATCH --mail-type=ALL
+#SBATCH --error=/nobackup/b3064455/job_output/kblossV5/S2_ragtag.err
+#SBATCH --output=/nobackup/b3064455/job_output/kblossV5/S2_ragtag.out
+
+#CoreSettings
+CoreDir="/nobackup/proj/mkmesmc/KblossV5"
+GenomeName="KblossV5"
+DNAShortReads_1="/nobackup/proj/mkmesmc/Kbloss/ShortReads/AllReads/raw_short_merged_1.fq"
+DNAShortReads_2="/nobackup/proj/mkmesmc/Kbloss/ShortReads/AllReads/raw_short_merged_2.fq"
+LongReads="/nobackup/proj/mkmesmc/Kbloss2022/Reads/Nanopore/MergedLongReads.fq"
+mascuradir=$CoreDir/S1_mascura
+ragtag_dir=$CoreDir/S2_ragtag
+
+#File Prep
+cd $CoreDir;mkdir $ragtag_dir;cd $ragtag_dir
+cp $mascuradir/CA.mr.99.17.15.0.02/primary.genome.scf.fasta ./Kb.s1.fa
+cp $CoreDir/Inputs/K.lax/KlaxifloraFTBG2000359A_699_v3.0.fa ./
+
+#Ragtag
+source activate ragtag
+ragtag.py correct KlaxifloraFTBG2000359A_699_v3.0.fa Kb.s1.fa -t 8 -w -u -o klax_cor_scaf
+ragtag.py scaffold KlaxifloraFTBG2000359A_699_v3.0.fa ./klax_cor_scaf/ragtag.correct.fasta -t 8 -w -u
+
+
+conda deactivate
+source activate seqkit
+#Filter out any small fragments.
+seqkit seq -m 10000 ./klax_cor_scaf/ragtag.scaffold.fasta > Kb.s2.fa
+Genome_S2=$ragtag_dir/klax_cor_scaf/Kb.s2.fa
+
+conda deactivate
+source activate longstitch
+abyss-fac "$Genome_S2"
+
+#TheJollyLog
+echo "S2. Ragtag Done"
+echo "S2. Ragtag Done" >> $CoreDir/TheJolly.Log
