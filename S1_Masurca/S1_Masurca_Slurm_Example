@@ -1,0 +1,35 @@
+#!/bin/bash
+#SBATCH -A mkmesmc
+#SBATCH --job-name=masurcaV5
+#SBATCH -p bigmem
+#SBATCH --ntasks=44
+#SBATCH --exclusive
+#SBATCH --mail-user=d.cowan-turner@newcastle.ac.uk
+#SBATCH --mail-type=ALL
+#SBATCH --error=/nobackup/b3064455/job_output/kblossV5/masurcaV5.err
+#SBATCH --output=/nobackup/b3064455/job_output/kblossV5/masurcaV5.out
+
+#CoreSettings
+CoreDir="/nobackup/proj/mkmesmc/KblossV5"
+GenomeName="KblossV5"
+DNAShortReads_1="/nobackup/proj/mkmesmc/Kbloss/ShortReads/AllReads/raw_short_merged_1.fq"
+DNAShortReads_2="/nobackup/proj/mkmesmc/Kbloss/ShortReads/AllReads/raw_short_merged_2.fq"
+LongReads="/mnt/storage/nobackup/proj/mkmesmc/KblossV5/Inputs/longreads/MergedLongReads.fq"
+mascuradir=$CoreDir/S1_mascura
+
+
+cd $CoreDir;mkdir $mascuradir;cd $mascuradir
+
+module purge
+module load Boost/1.74.0-GCC-10.2.0
+module load Perl/5.32.0-GCCcore-10.2.0
+
+export PATH=/mnt/storage/nobackup/proj/mkmesmc/mascura/MaSuRCA-4.0.9/bin:$PATH
+export PATH=/mnt/storage/nobackup/proj/mkmesmc/mascura/MaSuRCA-4.0.9/Flye/bin:$PATH
+
+masurca -t 44 -i "$DNAShortReads_1","$DNAShortReads_2"-r "$LongReads"
+module purge
+
+#TheJollyLog
+echo "S1. Assembly Done"
+echo "S1. Assembly Done" >> $CoreDir/TheJolly.Log
