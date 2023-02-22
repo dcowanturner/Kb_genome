@@ -1,0 +1,66 @@
+#Uses output scripts from two busco runs.  One with just chromosome scale scaffolds and the other with the remaining scaffolds.  Used to optimise which combination of scaffold will result in the best BUSCO score.   
+
+table_chr_busco <- read_delim("/data/GenomeStats/table.chr.busco.tsv", delim = "\t", escape_double = FALSE,col_names = TRUE, trim_ws = TRUE, skip = 2)
+table_all_busco <- read_delim("/data/GenomeStats/full_table.tsv", delim = "\t", escape_double = FALSE,col_names = TRUE, trim_ws = TRUE, skip = 2)
+
+names(table_chr_busco) <- gsub(" ","",names(table_chr_busco))
+names(table_all_busco) <- gsub(" ","",names(table_all_busco))
+names(table_chr_busco)[1] <- "Buscoid"
+names(table_all_busco) [1]<- "Buscoid"
+
+
+
+
+#No chr list
+no_chr <- table_all_busco %>% filter(!str_detect(Sequence, "Chr"))
+
+#Duplicates outside chrs
+no_chr_dups <- no_chr %>% filter(Status=="Duplicated")
+
+#Single Copies outside chrs
+no_chr_comp <- no_chr %>% filter(Status=="Complete")
+
+
+#How many completes from each scaf 
+Add_comp <- no_chr_comp %>% group_by(Sequence) %>% count()
+names(Add_comp)[2] <- "N_comp"
+#How many duplicates from each scaf 
+Add_dups <- no_chr_dups %>% group_by(Sequence) %>% count()
+names(Add_dups)[2] <- "N_dups"
+Ranking <- full_join(Add_comp,Add_dups)
+Ranking <- Ranking %>% dplyr::mutate(N_comp = replace_na(N_comp, 0),N_dups= replace_na(N_dups, 0))
+
+Ranking <- Ranking %>% dplyr::mutate(NetGain=N_comp-N_dups)
+
+
+#Where are the duplicates coming from?  
+
+#Pairwise duplication hunt 
+all_dups <- table_all_busco %>% filter(Status=="Duplicated")
+
+Instance1 <- all_dups %>% group_by(Buscoid)  %>% filter(row_number()==1)
+Instance2 <- all_dups %>% group_by(Buscoid)  %>% filter(row_number()==2)
+
+ComboInstances <- full_join(Instance1,Instance2,by="Buscoid")[,c(1,3,12)]
+
+Instances_between_Chrs <- ComboInstances %>% filter(str_detect(Sequence.x, "Chr"),str_detect(Sequence.y, "Chr"))%>%  filter(!Sequence.x==Sequence.y)
+Instances_between_Chrs %>%group_by(Sequence.x ) %>% count()
+
+Instances_between_Chrs_and_scaff <- ComboInstances %>% filter(str_detect(Sequence.x, "Chr"))%>% filter(!str_detect(Sequence.y, "Chr"))
+
+Instances_between_Chrs_and_scaff_count<- Instances_between_Chrs_and_scaff%>%group_by(Sequence.y ) %>% count()%>% arrange(desc(n))
+  
+names(Instances_between_Chrs_and_scaff_count)[1] <- "Sequence"
+names(Instances_between_Chrs_and_scaff_count)[2] <- "N_dup_chr"
+Ranking <- full_join(Add_comp,Instances_between_Chrs_and_scaff_count)
+Ranking <- Ranking %>% dplyr::mutate(N_comp = replace_na(N_comp, 0),N_dup_chr= replace_na(N_dup_chr, 0))
+
+Ranking <- Ranking %>% dplyr::mutate(NetGain=N_comp-N_dup_chr)
+names(Kbloss_softMasked_lengths)[1]  <- "Sequence"
+names(Kbloss_softMasked_lengths_all)[1]  <- "Sequence"
+Kbloss_softMasked_lengths <- Kbloss_softMasked_lengths %>% filter(!str_detect(Sequence, "Chr"))
+Kbloss_softMasked_lengths_chr<- Kbloss_softMasked_lengths_all %>% filter(str_detect(Sequence, "Chr"))
+Ranking$Sequence <-gsub("_RagTag","",Ranking$Sequence)
+
+Ranking <-full_join(Ranking,Kbloss_softMasked_lengths)
+Ranking <-Ranking %>% dplyr::mutate(NetGain=replace_na(NetGain, 0),Length=replace_na(Length, 0),N_dup_chr=replace_na(N_dup_chr, 0),N_comp=replace_na(N_comp, 0))
