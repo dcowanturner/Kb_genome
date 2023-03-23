@@ -156,6 +156,28 @@ For BUSCO optimisation BUSCO was run with the current assembly,  then the output
 
 
 
+# S6 Pilon
+After reducing ploidy the assembly was polished with the short reads using [Pilon 1.24](https://github.com/broadinstitute/pilon) (Walker et al., 2014).
+
+##ADD IN. 
+
+# Repeat Masking 
+
+```
+#repeatmodeler
+module purge
+cd /nobackup/proj/mkmesmc/KblossV5/Repeats
+#cp /nobackup/proj/mkmesmc/KblossV5/Inputs/Pilon_r2_output/pilon_round2.fasta ./
+
+source activate repeatmodeler
+#BuildDatabase -name Kbloss -engine ncbi pilon_round2.fasta
+RepeatModeler -pa 44 -engine ncbi -database Kbloss
+
+./dfam-tetools.sh -- /opt/RepeatModeler/RepeatModeler -database Kbloss -pa 44 -LTRStruct
+```
+ 
+
+
 
 
 
