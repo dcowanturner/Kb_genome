@@ -1,14 +1,12 @@
-#Uses output scripts from two busco runs.  One with just chromosome scale scaffolds and the other with the remaining scaffolds.  Used to optimise which combination of scaffold will result in the best BUSCO score.   
+##Busco_Optimisation R script.  Used to determine the optimal combination of chromosomes + scaffolds in terms of single copy complete genes.  
 
-table_chr_busco <- read_delim("/data/GenomeStats/table.chr.busco.tsv", delim = "\t", escape_double = FALSE,col_names = TRUE, trim_ws = TRUE, skip = 2)
+
 table_all_busco <- read_delim("/data/GenomeStats/full_table.tsv", delim = "\t", escape_double = FALSE,col_names = TRUE, trim_ws = TRUE, skip = 2)
 
 names(table_chr_busco) <- gsub(" ","",names(table_chr_busco))
 names(table_all_busco) <- gsub(" ","",names(table_all_busco))
 names(table_chr_busco)[1] <- "Buscoid"
 names(table_all_busco) [1]<- "Buscoid"
-
-
 
 
 #No chr list
