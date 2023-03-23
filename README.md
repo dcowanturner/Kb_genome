@@ -80,7 +80,7 @@ echo "S2. Ragtag Done" >> $CoreDir/TheJolly.Log
 ```
 
 # S3 purge haplotigs
-Multiple methods were used to reduce assembly ploidy to one haplotypic representation of the tetraploid genome. [Purge Haplotigs 1.1.2](https://bitbucket.org/mroachawri/purge_haplotigs/src/master/) (Roach et al., 2018) and [Purge Dups 1.2.6](https://github.com/dfguan/purge_dups) (Guan et al., 2020)  were run sequentially to reduced assembly ploidy. 
+Multiple methods were used to reduce assembly ploidy to one haplotypic representation of the tetraploid genome. [Purge Haplotigs 1.1.2](https://bitbucket.org/mroachawri/purge_haplotigs/src/master/) (Roach et al., 2018) and [Purge Dups 1.2.6](https://github.com/dfguan/purge_dups) (Guan et al., 2020)  were run sequentially to reduced assembly ploidy. Both installed via conda.  
 ```
 #File Prep
 cd $CoreDir;mkdir $purge_haplotigs_dir;cd $purge_haplotigs_dir
@@ -103,4 +103,62 @@ module purge
 echo "S3_purge_haplotigs done"
 echo "S3_purge_haplotigs done" >> $CoreDir/TheJolly.Log
 ```
+
+# S3 purge dups
+```
+#File Prep
+cd $CoreDir;mkdir $purge_dups_dir;cd $purge_dups_dir
+
+#Purge_DupsPrep
+REF=$Genome_S3
+ref=curated
+#ref=`echo $ref | sed 's/.fasta$//g' | sed 's/.fa$//g'`
+cpus=$SLURM_CPUS_PER_TASK
+source activate Purge_Dups
+
+#Index Ref
+echo "Start indexing $ref"
+minimap2 -t $cpus -xmap-ont -d $ref.idx $REF
+echo "Done indexing $ref"
+
+split_fa $REF > $ref.split.fa
+cp $ref.split.fa $ref.split2.fa
+minimap2 -t $cpus -xasm5 -DP $ref.split.fa $ref.split2.fa | gzip -c - > $ref.split.self.paf.gz
+
+module purge
+conda deactivate
+
+#short reads
+source activate bwa
+bwa index curated.fasta
+bwa mem -t 44 "$Genome_S3" "$DNAShortReads_1" "$DNAShortReads_2" | samtools view -b -o - > shortreads.bam
+conda deactivate
+
+source activate Purge_Dups
+# The program will generate two/three outputs, TX.stat and TX.base.cov which functions the same way as PB.stat and PB.base.cov respectively.
+ngscstat shortreads.bam
+
+calcuts TX.stat > cutoffs 2>calcults.log
+purge_dups -2 -T cutoffs -c TX.base.cov $ref.split.self.paf.gz > dups.bed 2> purge_dups.log
+get_seqs dups.bed $REF> purged.fa 2> hap.fa
+
+Genome_S4=$purge_dups_dir/hap.fa
+
+#TheJollyLog
+echo "S4_purge_haplotigs done"
+echo "S4_purge_haplotigs done" >> $CoreDir/TheJolly.Log
+```
+
+# S5 BUSCO optimisation 
+Scaffolds not contained within chromosome scale pseudomolecules were filtered using a BUSCO optimisation approach where a combination of scaffolds were retained to give the highest BUSCO score while reducing ploidy. BUSCO was also used to asceses genome completeness by detecting the presence of key single copy genes from the embryophyta_odb10 database. 
+
+For BUSCO optimisation BUSCO was run with the current assembly,  then the output was used in this [Busco_Optimisation](https://github.com/dcowanturner/Kb_genome/blob/main/AssemblyPipelineScripts/Busco_Optimisation) r script to produce an optimal list of scaffolds to be included.  
+
+
+
+
+
+
+
+
 
