@@ -1,3 +1,6 @@
+
+![Test](https://github.com/dcowanturner/Kb_genome/blob/main/Figures/KblossCircosPlot.svg)
+
 # Genome Assembly Process for Kb. 
 
 Note all of this process was carried out on Newcastle Univerisity's [rocket HPC](https://services.ncl.ac.uk/itservice/research/hpc/hardware/)
