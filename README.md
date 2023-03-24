@@ -22,10 +22,13 @@ ragtag_dir=$CoreDir/S2_ragtag
 purge_haplotigs_dir=$CoreDir/S3_purge_haplotigs
 purge_dups_dir=$CoreDir/S4_purge_dups
 BUSCO_opt_dir=$CoreDir/S5_busco_opt
+Pilon_dir=$CoreDir/S6_Pilon
+
 Genome_S2=$ragtag_dir/klax_cor_scaf/Kb.s2.fa
 Genome_S3=$purge_haplotigs_dir/curated.fasta
 Genome_S4=$purge_dups_dir/hap.fa
-Genome_S5=$S5_busco/kbloss_v5_S5.fasta
+Genome_S5=$BUSCO_opt_dir/kbloss_v5_S5.fasta
+Genome_S6=$Pilon_dir/pilon_round2.fasta
 ```
 
 # S1 MaSuRCA
