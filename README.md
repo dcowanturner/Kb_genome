@@ -1,9 +1,9 @@
 # Genome Assembly Process for Kb. 
 
 Note all of this process was carried out on Newcastle Univerisity's [rocket HPC](https://services.ncl.ac.uk/itservice/research/hpc/hardware/)
-Using the slurm resource manager. For simplicity commands are listed in order here,  but for see scripts folders for actual scripts used on slurm.
+using the slurm resource manager. For simplicity commands are listed in order here,  but for see scripts folders for actual scripts used on slurm.
 Most steps were carried out on a 44 core bigmem node with 512 GB RAM and 2 Intel Xeon E5-2699 v4 processors (2.2 GHz, 22 cores, 55 MB cache).
-Some steps required more RAM, as noted.  No steps required distributed computing, but could possibly be optimised and sped up.  
+Some steps required more RAM, as noted.  No steps required distributed computing, but some could possibly be optimised and sped up.  
 
 
 # Set up directories
