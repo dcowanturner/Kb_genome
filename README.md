@@ -260,4 +260,29 @@ Basic genome stats were obtaind via the abyss-fac script from the [abyss 2.3.5 a
 
 
 
+_**Genome Stats**_
+
+| K.b  | Genome Stats |
+| ------------- | ------------- |
+|  Scaffolds: | 143 |
+| N50 (Mb)  | 20.06 |
+| Assembly Size (Mb)  | 461 |
+| Gaps(%)  | 0.138 |
+| Read Mapping Rates - Short Reads (%) | 89.03 |
+| Read Mapping Rates - Long Reads (%) | 94.38 |
+| long terminal repeats (LAI) | 11.12 |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
