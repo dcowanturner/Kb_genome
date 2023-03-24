@@ -21,8 +21,11 @@ mascuradir=$CoreDir/S1_mascura
 ragtag_dir=$CoreDir/S2_ragtag
 purge_haplotigs_dir=$CoreDir/S3_purge_haplotigs
 purge_dups_dir=$CoreDir/S4_purge_dups
+BUSCO_opt_dir=$CoreDir/S5_busco_opt
 Genome_S2=$ragtag_dir/klax_cor_scaf/Kb.s2.fa
 Genome_S3=$purge_haplotigs_dir/curated.fasta
+Genome_S4=$purge_dups_dir/hap.fa
+Genome_S5=$S5_busco/kbloss_v5_S5.fasta
 ```
 
 # S1 MaSuRCA
@@ -104,7 +107,7 @@ echo "S3_purge_haplotigs done"
 echo "S3_purge_haplotigs done" >> $CoreDir/TheJolly.Log
 ```
 
-# S3 purge dups
+# S4 purge dups
 ```
 #File Prep
 cd $CoreDir;mkdir $purge_dups_dir;cd $purge_dups_dir
@@ -152,35 +155,100 @@ echo "S4_purge_haplotigs done" >> $CoreDir/TheJolly.Log
 # S5 BUSCO optimisation 
 Scaffolds not contained within chromosome scale pseudomolecules were filtered using a BUSCO optimisation approach where a combination of scaffolds were retained to give the highest BUSCO score while reducing ploidy. BUSCO was also used to asceses genome completeness by detecting the presence of key single copy genes from the embryophyta_odb10 database. 
 
-For BUSCO optimisation BUSCO was run with the current assembly,  then the output was used in this [Busco_Optimisation](https://github.com/dcowanturner/Kb_genome/blob/main/AssemblyPipelineScripts/Busco_Optimisation) r script to produce an optimal list of scaffolds to be included.  
+For BUSCO optimisation BUSCO was run with the current assembly,  then the output was used in this [Busco_Optimisation](https://github.com/dcowanturner/Kb_genome/blob/main/AssemblyPipelineScripts/Busco_Optimisation) r script to produce an optimal list of scaffolds to be included (ToAdd.txt). 
+
+```
+#File Prep
+cd $CoreDir;mkdir $BUSCO_opt_dir;cd $BUSCO_opt_dir
+
+#Current Genome Location
+REF=$Genome_S4
+
+conda activate seqkit3
+
+#grab list of scaffolds to add back to chromosome only file. Need to run BUSCO on the $Genome_S4 and then run the BUSCO optimisation R script 
+# eg.  cp ToAdd.txt ./ 
+
+#Grab copy of Current Genome .fasta 
+cp $Genome_S4 ./Kbloss_v5_S4.fasta 
+
+#Remove _RagTags from id's
+sed 's/_RagTag//g' Kbloss_v5_S4.fasta > Kbloss_v5_S4_clean.fasta
+
+#Subset genome to just chromosome scale scaffolds
+seqkit grep -r -n -p '.*Chr.*' Kbloss_v5_S4_clean.fasta >Kbloss_v5_S4_chr_only.fasta
+
+seqkit grep -n -f ToAdd.txt  Kbloss_v5_S4_clean.fasta > to_addback.fasta
+cat Kbloss_v5_S4_chr_only.fasta to_addback.fasta > kbloss_v5_S5.fasta
+
+Genome_S5=$S5_busco/kbloss_v5_S5.fasta
+
+#TheJollyLog
+echo "S5_busco_opt done"
+echo "S5_busco_opt done" >> $CoreDir/TheJolly.Log
+```
 
 
 
 # S6 Pilon
 After reducing ploidy the assembly was polished with the short reads using [Pilon 1.24](https://github.com/broadinstitute/pilon) (Walker et al., 2014).
 
-##ADD IN. 
+```
+#File Prep
+cd $CoreDir;mkdir $Pilon_dir;cd $Pilon_dir
 
-# Repeat Masking 
+#Current Genome Location
+REF=$Genome_S5
+
+## Pilon Round 1. 
+
+source activate pilon
+mkdir $Pilon_dir/Pilon1
+cd $Pilon_dir/Pilon1
+
+#Grab copy of Current Genome .fasta 
+cp $Genome_S5 ./Kbloss_v5_S5.fasta 
+
+#Make index
+bwa index ./Kbloss_v5_S5.fasta
+mkdir illumina_mapping
+#You may need to change the $DNAShortReads_1 and $DNAShortReads_2 to their actual directories
+bwa mem -t 44 ./Kbloss_v5_S5.fasta $DNAShortReads_1 $DNAShortReads_2 | samtools view - -Sb | samtools sort - -@14 -o ./illumina_mapping/mapping.sorted.bam
+samtools index ./illumina_mapping/mapping.sorted.bam
+#pilon
+mkdir out
+pilon -Xmx500G --genome ./Kbloss_v5_S5.fasta --fix bases --changes --frags ./illumina_mapping/mapping.sorted.bam --threads 44 --output ./out/pilon_round1 | tee ./out/round1.pilon
+
+## Pilon Round 2
+cd $Pilon_dir/
+mkdir $Pilon_dir/Pilon2
+cd $Pilon_dir/Pilon2
+
+cp $Pilon_dir/Pilon1/out/pilon_round1.fasta ./
+
+#Make index
+bwa index ./pilon_round1.fasta
+mkdir illumina_mapping
+#You may need to change the $DNAShortReads_1 and $DNAShortReads_2 to their actual directories
+bwa mem -t 44 ./pilon_round1.fasta $DNAShortReads_1 $DNAShortReads_2 | samtools view - -Sb | samtools sort - -@14 -o ./illumina_mapping/mapping.sorted.bam
+samtools index ./illumina_mapping/mapping.sorted.bam
+#pilon
+mkdir out
+pilon -Xmx500G --genome ./pilon_round1.fasta --fix bases --changes --frags ./illumina_mapping/mapping.sorted.bam --threads 44 --output ./out/pilon_round2 | tee ./out/round2.pilon
+
+Genome_S6=$Pilon_dir/pilon_round2.fasta
+
+#TheJollyLog
+echo "S6_Pilon done"
+echo "S6_Pilon done" >> $CoreDir/TheJolly.Log
+```
+
+# Final file clean up and output assembly 
 
 ```
-#repeatmodeler
-module purge
-cd /nobackup/proj/mkmesmc/KblossV5/Repeats
-#cp /nobackup/proj/mkmesmc/KblossV5/Inputs/Pilon_r2_output/pilon_round2.fasta ./
-
-source activate repeatmodeler
-#BuildDatabase -name Kbloss -engine ncbi pilon_round2.fasta
-RepeatModeler -pa 44 -engine ncbi -database Kbloss
-
-./dfam-tetools.sh -- /opt/RepeatModeler/RepeatModeler -database Kbloss -pa 44 -LTRStruct
+cd $CoreDir; mkdir FinalOutput; cd FinalOutput
+cp $Genome_S6 ./Kbloss_V5.fasta
 ```
- 
-
-
-
-
-
 
 
 
