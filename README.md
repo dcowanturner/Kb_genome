@@ -250,5 +250,11 @@ cd $CoreDir; mkdir FinalOutput; cd FinalOutput
 cp $Genome_S6 ./Kbloss_V5.fasta
 ```
 
+# Genome QC 
+
+Basic genome stats were obtaind via the abyss-fac script from the [abyss 2.3.5 assembler](https://github.com/bcgsc/abyss).
+[BUSCO](https://busco.ezlab.org/) was used to asceses genome completeness by detecting the presence of key single copy genes from the embryophyta_odb10 database. The genome assembly was assessed using the long-terminal repeat (LTR) assembly index, which is the proportion of intact long terminal repeats (LAI) within the assembly, from the [LTR retriever pipeline 2.9.0](https://github.com/oushujun/LTR_retriever)(Ou et al., 2018). A higher score tends to suggest a more contiguous and complete assembly; and is improved by both short reads increasing accuracy per base and long reads providing resolution over long repetitive regions.  
+
+
 
 
