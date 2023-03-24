@@ -276,15 +276,6 @@ _**Genome Stats**_
 | long terminal repeats (LAI) | 11.12 |
 
 
-_**BUSCO**_
-
-![K. blossfeldiana genome completeness (Panel B) was assessed using BUSCO with the Embryophyte odb10 database of single copy genes (A), showing percentage of complete (C)  present in single copies (S) or duplicated (D), fragmented (F) or missing (M) genes detected](https://github.com/dcowanturner/Kb_genome/blob/main/Figures/buscoGenome.svg)
-
-_**Repetitive Elements**_
-
-![Proportions of repetitive elements detected within the Kalanchoe blossfeldiana genome](https://github.com/dcowanturner/Kb_genome/blob/main/Figures/Repetitive%20Elements.svg)
-
-
 
 
 
