@@ -1,7 +1,7 @@
 
-![Test](https://github.com/dcowanturner/Kb_genome/blob/main/Figures/KblossCircosPlot.svg)
+![The genome of K. blossfeldiana (Panel A), scaffolded into 18 chromosome scale pseudomolecules (377 Mb) and 155 smaller scaffolds (not shown, 268 Mb) using the Kalanchoe laxiflora genome (Phytozome).K. blossfeldiana is thought to have 17 or 18 chromosomes per haplotype. Density of genes up-regulated (red, outward) or down-regulated (blue, inward) in the mature CAM K. blossfeldiana leaves (3rd leaf pair from the bottom) compared to the young C3 K. blossfeldiana leaves (9th leaf pair from the bottom). Inner image is of K. blossfeldiana.](https://github.com/dcowanturner/Kb_genome/blob/main/Figures/KblossCircosPlot.svg)
 
-# Genome Assembly Process for Kb. 
+# Genome Assembly Process for  Kalanchoe blossfeldiana 
 
 Note all of this process was carried out on Newcastle Univerisity's [rocket HPC](https://services.ncl.ac.uk/itservice/research/hpc/hardware/)
 using the slurm resource manager. For simplicity commands are listed in order here,  but for see scripts folders for actual scripts used on slurm.
@@ -265,7 +265,7 @@ Basic genome stats were obtaind via the abyss-fac script from the [abyss 2.3.5 a
 
 _**Genome Stats**_
 
-| K.b  | Genome Stats |
+| Kalanchoe blossfeldiana  | Genome Stats |
 | ------------- | ------------- |
 |  Scaffolds: | 143 |
 | N50 (Mb)  | 20.06 |
@@ -276,7 +276,13 @@ _**Genome Stats**_
 | long terminal repeats (LAI) | 11.12 |
 
 
+_**BUSCO**_
 
+![K. blossfeldiana genome completeness (Panel B) was assessed using BUSCO with the Embryophyte odb10 database of single copy genes (A), showing percentage of complete (C)  present in single copies (S) or duplicated (D), fragmented (F) or missing (M) genes detected](https://github.com/dcowanturner/Kb_genome/blob/main/Figures/buscoGenome.pdf)
+
+_**Repetitive Elements**_
+
+![Proportions of repetitive elements detected within the Kalanchoe blossfeldiana genome](https://github.com/dcowanturner/Kb_genome/blob/main/Figures/Repetitive%20Elements.pdf)
 
 
 
