@@ -273,7 +273,7 @@ _**Genome Stats**_
 | Gaps(%)  | 0.138 |
 | Read Mapping Rates - Short Reads (%) | 89.03 |
 | Read Mapping Rates - Long Reads (%) | 94.38 |
-| long terminal repeats (LAI) | 11.12 |
+| Long-terminal repeat (LTR) assembly index (LAI) | 11.12 |
 
 
 
