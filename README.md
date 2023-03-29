@@ -10,7 +10,7 @@ Some steps required more RAM, as noted.  No steps required distributed computing
 
 
 # Set up directories
-For the short reads initial sequence QC and adaptor trimming was carried out by Novogene and then assessed in [FastQC 0.11.9](https://github.com/s-andrews/FastQC) (Andrews, 2010), we determined no further trimming/filtering was required. Long reads were basecalled and quality filtered by Guppy(Oxford Nanopore Technologies) and read quality was assessed in [LongQC 1.2.0](https://github.com/yfukasawa/LongQC)(Fukasawa et al., 2020). Respecitive read fastq files were merged using cat before the assembly process described below.   
+For the short reads initial sequence QC and adaptor trimming was carried out by Novogene and then assessed in [FastQC 0.11.9](https://github.com/s-andrews/FastQC) (Andrews, 2010), we determined no further trimming/filtering was required. Long reads were basecalled and quality filtered by Guppy 6.2.1 (Oxford Nanopore Technologies) and read quality was assessed in [LongQC 1.2.0](https://github.com/yfukasawa/LongQC)(Fukasawa et al., 2020). Respecitive read fastq files were merged using cat before the assembly process described below.   
 
 Core Directory settings
 ```
